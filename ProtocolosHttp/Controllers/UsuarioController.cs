@@ -45,7 +45,7 @@ namespace ProtocolosHttp.Controllers
 
         [HttpGet]
         [Route("busca-nome/{nome}")]
-        public List<UsuarioModel> ConsultarUsuarioPorCodigo(string nome) =>
+        public List<UsuarioModel> ConsultarUsuarioPorNome(string nome) =>
             ListaDeUsuarios.Where(n => n.Nome.Contains(nome, StringComparison.CurrentCultureIgnoreCase)).ToList();
 
         [HttpGet]
