@@ -7,28 +7,12 @@ namespace ProtocolosHttp.Controllers
 {
     [Route("usuario")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class UsuarioController : BaseController<UsuarioModel>
     {
         private static readonly List<UsuarioModel> ListaDeUsuarios = new List<UsuarioModel>();
 
-        [HttpPut]
-        public ActionResult AlterarUsuario(UsuarioModel usuario)
-        {
-            if (ListaDeUsuarios.All(x => x.Codigo != usuario.Codigo))
-                return BadRequest("Não existe nenhum usuário com o código informado");
-
-            ListaDeUsuarios.Where(x => x.Codigo == usuario.Codigo).ToList()
-            .ForEach(x =>
-            {
-                x.Nome = usuario.Nome;
-                x.Login = usuario.Login;
-            });
-
-            return Ok($"Usuário {usuario.Nome} alterado com sucesso!");
-        }
-
         [HttpPost]
-        public ActionResult CadastrarUsuario(UsuarioModel usuario)
+        public override ActionResult Adicionar(UsuarioModel usuario)
         {
             if (ListaDeUsuarios.Any(x => x.Codigo == usuario.Codigo))
                 return BadRequest("Já existe um usuário com o código informado");
@@ -36,6 +20,22 @@ namespace ProtocolosHttp.Controllers
             ListaDeUsuarios.Add(usuario);
 
             return Ok($"Usuário {usuario.Nome} cadastrado com sucesso!");
+        }
+
+        [HttpPut]
+        public override ActionResult Alterar(UsuarioModel usuario)
+        {
+            if (ListaDeUsuarios.All(x => x.Codigo != usuario.Codigo))
+                return BadRequest("Não existe nenhum usuário com o código informado");
+
+            ListaDeUsuarios.Where(x => x.Codigo == usuario.Codigo).ToList()
+                .ForEach(x =>
+                {
+                    x.Nome = usuario.Nome;
+                    x.Login = usuario.Login;
+                });
+
+            return Ok($"Usuário {usuario.Nome} alterado com sucesso!");
         }
 
         [HttpGet]
@@ -48,12 +48,9 @@ namespace ProtocolosHttp.Controllers
         public List<UsuarioModel> ConsultarUsuarioPorNome(string nome) =>
             ListaDeUsuarios.Where(n => n.Nome.Contains(nome, StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-        [HttpGet]
-        public List<UsuarioModel> ConsultarUsuarios() => ListaDeUsuarios;
-
         [HttpDelete]
         [Route("{codigo}")]
-        public ActionResult ExcluirUsuario(int codigo)
+        public override ActionResult Deletar(int codigo)
         {
             var usuario = ListaDeUsuarios.Where(n => n.Codigo == codigo)
                 .Select(n => n)
@@ -66,5 +63,8 @@ namespace ProtocolosHttp.Controllers
 
             return Ok("Registro excluido com sucesso!");
         }
+
+        [HttpGet]
+        public override List<UsuarioModel> GetAll() => ListaDeUsuarios;
     }
 }
